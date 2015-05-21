@@ -263,12 +263,12 @@ function addOverlayHandlers(key) {
 				handleSwipeRight(key);
 			}
 			if (direction == "up") {
-				scroll_distance = distance * (2000/duration);
+				scroll_distance = distance * (1000/duration);
 				$('html, body').animate({scrollTop: $(window).scrollTop() + scroll_distance}, 500);
 				//handleSwipeUp(key);
 			}
 			if (direction == "down") {
-				scroll_distance = distance * (2000/duration);
+				scroll_distance = distance * (1000/duration);
 				$('html, body').animate({scrollTop: $(window).scrollTop() - scroll_distance}, 500);
 				//handleSwipeDown(key);
 			}
