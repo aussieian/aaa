@@ -11,6 +11,10 @@
 
 <style>
 
+body { 
+	font-family: Tahoma;
+}
+
 #stream {
 	width: 580px;
 }
@@ -24,7 +28,7 @@
 	/*position: absolute;*/
 	z-index: 50;
 	background: #000;
-    opacity: 0.8;
+    opacity: 0;
 }
 
 .highlighted {
@@ -41,7 +45,7 @@ var now_playing = null;
 var scroll_timer = null;
 var top_px_play_min = 0;
 var top_px_play_max = 100;
-var scroll_timer_freq = 500;
+var scroll_timer_freq = 250;
 
 $( document ).ready(function() {
 	// init youtube
@@ -166,7 +170,6 @@ function handleClickVideo(key) {
 		pauseVideo(key);
 	} else {
 		// pause playing video and play new one
-		console.log("here");
 		pausePlayingVideo();
 		playVideo(key);
 	}
@@ -176,7 +179,7 @@ function handleClickVideo(key) {
 function handleSwipeLeft(key) {
 
 	$(".video." + key).fadeOut(function() { destroyPlayer(key); onScroll(); });
-	$.notify("Tossed. Bye bye", "info");
+	$.notify("Tossed out!", { className: "info", position: "top center" });
 	
 	//setTimeout(onScroll, 1000);
 	//onScroll();
@@ -186,7 +189,7 @@ function handleSwipeLeft(key) {
 function handleSwipeRight(key) {
 
 	$(".video." + key).fadeOut(function() { destroyPlayer(key); onScroll(); });
-	$.notify("Snatched! Watch it later on your feed", "success");
+	$.notify("Snatched! Watch it later on your feed", { className: "success", position: "top center" });
 	
 	//setTimeout(onScroll, 1000);
 
@@ -194,7 +197,7 @@ function handleSwipeRight(key) {
 }
 
 function handleDoubleTap(key) {
-	$.notify("Loved!", "success");
+	$.notify("Loved!", { className: "success", position: "top center" });
 }
 
 function addVideo(key) {
@@ -242,7 +245,7 @@ function addOverlay(key) {
 
 	// make overlay div
 	width = video_iframe.width();
-	height = video_iframe.height() / 2;
+	height = video_iframe.height() / 3;
 
 	var div = "<div class='video_overlay " + key + "' video-key='" + key + "' style='width: " + width + "px; height: " + height + "px; margin-top: -" + height + "px'></div>";
 
