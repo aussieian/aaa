@@ -2,6 +2,8 @@
 <head>
 	<title>ScrollVids!</title>
 
+	<meta name="viewport" content="width=600, initial-scale=1, maximum-scale=1">
+
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 <!-- touchSwipe.js modified to support tap and swipe in triggerHandler -->
 <script src="jquery.touchSwipe.js"></script> 
@@ -253,7 +255,7 @@ function addOverlayHandlers(key) {
 	// swipe
 	$(".video_overlay." + key).swipe({
 		swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
-			console.log("You swiped " + direction + " for " + distance);
+			console.log("You swiped " + direction + " for " + distance + " for " + duration);
 			if (direction == "left") {
 				handleSwipeLeft(key);
 			}
@@ -261,11 +263,13 @@ function addOverlayHandlers(key) {
 				handleSwipeRight(key);
 			}
 			if (direction == "up") {
-				$('html, body').animate({scrollTop: $(window).scrollTop() + distance}, 500);
+				scroll_distance = distance * (2000/duration);
+				$('html, body').animate({scrollTop: $(window).scrollTop() + scroll_distance}, 500);
 				//handleSwipeUp(key);
 			}
 			if (direction == "down") {
-				$('html, body').animate({scrollTop: $(window).scrollTop() - distance}, 500);
+				scroll_distance = distance * (2000/duration);
+				$('html, body').animate({scrollTop: $(window).scrollTop() - scroll_distance}, 500);
 				//handleSwipeDown(key);
 			}
 		},
