@@ -62,7 +62,7 @@ var top_px_play_min = 0;
 var top_px_play_max = 100;
 var scroll_timer_freq = 50;
 var autoplay = true;
-var mobile = null; // set to null to autodetect
+var mobile = false; // set to null to autodetect
 
 $( document ).ready(function() {
 
@@ -371,24 +371,27 @@ function onPlayerReady(event) {
 }
 
 function onPlayerStateChange(event) {
-  console.log("my state changed " + event.data);
+
+	console.log("my state changed " + event.data);
  	
-  // center if playing 
-  if ((event.data == 1) && (mobile)) {
+ 	iframe_id = (event.target.c.id);
+	parts = iframe_id.split('video_');
+	video_id = parts[1];
 
-  	// pause other playing video
-  	pausePlayingVideo();
+	// center if playing 
+	if ((event.data == -1) && (mobile)) {
+		centerVideo(video_id);
+	}
 
-  	iframe_id = (event.target.c.id);
-  	parts = iframe_id.split('video_');
-  	video_id = parts[1];
+	// pause other videos when it starts
+  	if ((event.data == 1) && (mobile)) {
 
-  	// set now playing
-  	now_playing = video_id;
+	  	// pause other playing video
+	  	pausePlayingVideo();
 
-  	// center window on video
-  	centerVideo(video_id);
-  }
+	  	// set now playing
+	  	now_playing = video_id;
+  	}
 }
 
 function centerVideo(key) {
