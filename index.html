@@ -24,8 +24,7 @@
 	/*position: absolute;*/
 	z-index: 50;
 	background: #000;
-    opacity: 0;
-    border: 1px solid red;
+    opacity: 0.8;
 }
 
 .highlighted {
@@ -243,7 +242,7 @@ function addOverlay(key) {
 
 	// make overlay div
 	width = video_iframe.width();
-	height = video_iframe.height();
+	height = video_iframe.height() / 2;
 
 	var div = "<div class='video_overlay " + key + "' video-key='" + key + "' style='width: " + width + "px; height: " + height + "px; margin-top: -" + height + "px'></div>";
 
