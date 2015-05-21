@@ -8,6 +8,7 @@
 <!-- touchSwipe.js modified to support tap and swipe in triggerHandler -->
 <script src="jquery.touchSwipe.js"></script> 
 <script src="notify.min.js"></script>
+<script src="jquery.lazyloadxt.extra.min.js"></script>
 
 <style>
 
@@ -46,6 +47,7 @@ var scroll_timer = null;
 var top_px_play_min = 0;
 var top_px_play_max = 100;
 var scroll_timer_freq = 250;
+var autoplay = false;
 
 $( document ).ready(function() {
 	// init youtube
@@ -59,13 +61,13 @@ function main() {
 	addVideo('EcOgjrRWx_Q');
 	addVideo('OPsgh1NWZnM');
 	addVideo('WxfZkMm3wcg');
-	/*addVideo('jzJlj19lF3w');
+	addVideo('jzJlj19lF3w');
 	addVideo('-BrDlrytgm8');
 	addVideo('cbJhRsdkJcA');
 	addVideo('H-frFpGLI5o');
 	addVideo('Xws0XKHXpXg');
 	addVideo('JRaakIL-N_s');
-	addVideo('alX1mZo5wrU');*/
+	addVideo('alX1mZo5wrU');
 }
 
 function initYouTube() {
@@ -90,6 +92,9 @@ function onScroll() {
 
 	//console.log(players);
     var scrollTop = $(this).scrollTop();
+
+    //findMiddleElement(document);
+
     $('.video').each(function() {
 
         //var topDistance = $(this).offset().top;
@@ -100,14 +105,39 @@ function onScroll() {
         if ((distance < top_px_play_max) && (distance > top_px_play_min)) {
 
 	    	key = $(this).attr("video-key");
+	    	highlightVideo(key);
 	    	if (now_playing != key) {
-	    		highlightVideo(key);
-	    		playVideo(key);
+	    		if (autoplay) {
+	    			playVideo(key);
+	    		}
+	    		
 	    	}
         }
 
    	});
 
+}
+
+function findMiddleElement(docElm) {
+    var viewportHeight = docElm.clientHeight,
+        elements = $('div');
+
+    return function(e){
+        var middleElement;
+        if( e && e.type == 'resize' )
+            viewportHeight = docElm.clientHeight;
+
+        elements.each(function(){
+            var pos = this.getBoundingClientRect().top;
+            // if an element is more or less in the middle of the viewport
+            if( pos > viewportHeight/2.5 && pos < viewportHeight/1.5 ){
+                middleElement = this;
+                return false; // stop iteration 
+            }
+        });
+
+        console.log(middleElement);
+    }
 }
 
 function highlightVideo(key) {
@@ -210,7 +240,7 @@ function addVideo(key) {
 	// make iframe for video
 	f = document.createElement("IFRAME");
 	f.id = "video_" + key;
-	f.setAttribute("src", "http://www.youtube.com/embed/" + key + "?wmode=opaque&enablejsapi=1&controls=0");
+	f.setAttribute("data-src", "http://www.youtube.com/embed/" + key + "?wmode=opaque&enablejsapi=1&controls=0");
 	f.setAttribute("enablejsapi", "1");
 	f.setAttribute("frameborder", "0");
 	f.style.width = 560+"px"; 
