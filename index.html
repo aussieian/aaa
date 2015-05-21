@@ -43,7 +43,7 @@ input.drop {
 	background: #000;
 	color: #fff;
 	text-align: center;
-    opacity: 0;
+    opacity: 1;
 }
 
 .highlighted {
@@ -62,7 +62,7 @@ var top_px_play_min = 0;
 var top_px_play_max = 100;
 var scroll_timer_freq = 50;
 var autoplay = true;
-var mobile = null; // set to null to autodetect
+var mobile = true; // set to null to autodetect
 
 $( document ).ready(function() {
 
@@ -86,8 +86,6 @@ function main() {
 		autoplay = false;
 		scroll_timer_freq = 250;
 	}
-
-
 
 	// load videos
 	addVideo('0xyWnYJ1aUQ');
@@ -194,6 +192,7 @@ function highlightVideo(key) {
 function pausePlayingVideo() {
 	// stop current video
 	if (now_playing != null) {
+		//console.log(now_playing);
 		pauseVideo(now_playing);
 	}
 }
@@ -371,8 +370,38 @@ function onPlayerReady(event) {
   //event.target.playVideo();
 }
 
-function onPlayerStateChange() {
-  console.log("my state changed");
+function onPlayerStateChange(event) {
+  console.log("my state changed " + event.data);
+ 	
+  // center if playing 
+  if ((event.data == 1) && (mobile)) {
+
+  	// pause other playing video
+  	pausePlayingVideo();
+
+  	iframe_id = (event.target.c.id);
+  	parts = iframe_id.split('video_');
+  	video_id = parts[1];
+
+  	// set now playing
+  	now_playing = video_id;
+
+  	// center window on video
+  	centerVideo(video_id);
+  }
+}
+
+function centerVideo(key) {
+	video_div = $(".video." + key);
+	//video_div.hide();
+	var top2 = video_div.offset().top;
+	var height = video_div.height();
+	var windowHeight = $(window).height();
+	var offset = (windowHeight - height) / 2;
+
+	$('html,body').animate({
+		scrollTop: top2 - offset},
+		'fast');
 }
 
 </script>
