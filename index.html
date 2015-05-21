@@ -40,7 +40,7 @@ var now_playing = null;
 var scroll_timer = null;
 var top_px_play_min = 0;
 var top_px_play_max = 100;
-var scroll_timer_freq = 50;
+var scroll_timer_freq = 500;
 
 $( document ).ready(function() {
 	// init youtube
@@ -253,12 +253,20 @@ function addOverlayHandlers(key) {
 	// swipe
 	$(".video_overlay." + key).swipe({
 		swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
-			console.log("You swiped " + direction);
+			console.log("You swiped " + direction + " for " + distance);
 			if (direction == "left") {
 				handleSwipeLeft(key);
 			}
 			if (direction == "right") {
 				handleSwipeRight(key);
+			}
+			if (direction == "up") {
+				$('html, body').animate({scrollTop: $(window).scrollTop() + distance}, 500);
+				//handleSwipeUp(key);
+			}
+			if (direction == "down") {
+				$('html, body').animate({scrollTop: $(window).scrollTop() - distance}, 500);
+				//handleSwipeDown(key);
 			}
 		},
 		tap:function(event, target) {
