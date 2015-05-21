@@ -1,4 +1,4 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <head>
 	<title>ScrollVids!</title>
 
@@ -9,11 +9,23 @@
 <script src="jquery.touchSwipe.js"></script> 
 <script src="notify.min.js"></script>
 <script src="jquery.lazyloadxt.extra.min.js"></script>
+<script src="jquery.viewport.mini.js"></script>
 
 <style>
 
 body { 
 	font-family: Tahoma;
+}
+
+#drop {
+	margin-top: 8px;
+	margin-bottom: 8px;
+	width: 576px;
+}
+
+input.drop {
+	width: 500px;
+	font-size: 12pt;	
 }
 
 #stream {
@@ -29,11 +41,13 @@ body {
 	/*position: absolute;*/
 	z-index: 50;
 	background: #000;
+	color: #fff;
+	text-align: center;
     opacity: 0;
 }
 
 .highlighted {
-	border: 4px solid red;
+	background-color: #111;
 }
 
 </style>
@@ -46,16 +60,36 @@ var now_playing = null;
 var scroll_timer = null;
 var top_px_play_min = 0;
 var top_px_play_max = 100;
-var scroll_timer_freq = 250;
-var autoplay = false;
+var scroll_timer_freq = 50;
+var autoplay = true;
+var mobile = null; // set to null to autodetect
 
 $( document ).ready(function() {
+
+	// go to top on page load
+	$('<a name="top"/>').insertBefore($('body').children().eq(0));
+   	window.location.hash = 'top';
+
 	// init youtube
 	initYouTube();
 });
 
 
 function main() {
+
+	if (mobile == null) {
+		mobile = isMobile();
+	}
+
+	// settings for mobile
+	if (mobile) {
+		autoplay = false;
+		scroll_timer_freq = 250;
+	}
+
+
+
+	// load videos
 	addVideo('0xyWnYJ1aUQ');
 	addVideo('lGuvd2Z5A5c');
 	addVideo('EcOgjrRWx_Q');
@@ -68,6 +102,10 @@ function main() {
 	addVideo('Xws0XKHXpXg');
 	addVideo('JRaakIL-N_s');
 	addVideo('alX1mZo5wrU');
+}
+
+function isMobile() {
+	return ( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 }
 
 function initYouTube() {
@@ -90,32 +128,40 @@ function addScrollListener() {
 
 function onScroll() {
 
-	//console.log(players);
-    var scrollTop = $(this).scrollTop();
+	key = getCenterVideo();
+	highlightVideo(key);
+	if ((autoplay) && (now_playing != key)) {
+		playVideo(key);
+	}
+}
 
-    //findMiddleElement(document);
+function getCenterVideo() {
 
-    $('.video').each(function() {
+	var windowHeight = $(window).height(); 
+	var middleHeight = windowHeight / 2;
 
-        //var topDistance = $(this).offset().top;
-        var scrollTop     = $(window).scrollTop();
-    	var elementOffset = $(this).offset().top;
-    	var distance      = (elementOffset - scrollTop);
+	// adapted from 
+	// http://stackoverflow.com/questions/11760898/jquery-get-the-element-thats-on-the-middle-of-the-visible-screen-while-scroll
+	var visibleElements = $(".video").filter(":in-viewport");
 
-        if ((distance < top_px_play_max) && (distance > top_px_play_min)) {
+	var midElement;
+	var distance = null;
+	var currDistance = 0;
+	visibleElements.each(function(index, element) {
+		top2 = $(element).offset().top - $(document).scrollTop();
+		height = $(element).height();
+		middle = top2 + (height / 2);
+		currDistance = Math.abs(middleHeight - middle);
+		if ( distance == null || currDistance < distance ) {
+			midElement = $(element);
+			distance = currDistance;
+		}
+	});
 
-	    	key = $(this).attr("video-key");
-	    	highlightVideo(key);
-	    	if (now_playing != key) {
-	    		if (autoplay) {
-	    			playVideo(key);
-	    		}
-	    		
-	    	}
-        }
+	// middle element
+	console.log("middle video is " + midElement.attr("video-key"));
 
-   	});
-
+	return midElement.attr("video-key");
 }
 
 function findMiddleElement(docElm) {
@@ -142,7 +188,7 @@ function findMiddleElement(docElm) {
 
 function highlightVideo(key) {
 	$(".video").removeClass("highlighted");
-	$(".video_overlay." + key).addClass("highlighted");
+	$(".video." + key).addClass("highlighted");
 }
 
 function pausePlayingVideo() {
@@ -208,7 +254,7 @@ function handleClickVideo(key) {
 // remove it
 function handleSwipeLeft(key) {
 
-	$(".video." + key).fadeOut(function() { destroyPlayer(key); onScroll(); });
+	$(".video." + key).slideUp(function() { destroyPlayer(key); onScroll(); });
 	$.notify("Tossed out!", { className: "info", position: "top center" });
 	
 	//setTimeout(onScroll, 1000);
@@ -218,8 +264,8 @@ function handleSwipeLeft(key) {
 // watch later
 function handleSwipeRight(key) {
 
-	$(".video." + key).fadeOut(function() { destroyPlayer(key); onScroll(); });
-	$.notify("Snatched! Watch it later on your feed", { className: "success", position: "top center" });
+	$(".video." + key).slideUp(function() { destroyPlayer(key); onScroll(); });
+	$.notify("Snatched!", { className: "success", position: "top center" });
 	
 	//setTimeout(onScroll, 1000);
 
@@ -227,7 +273,7 @@ function handleSwipeRight(key) {
 }
 
 function handleDoubleTap(key) {
-	$.notify("Loved!", { className: "success", position: "top center" });
+	$.notify("Loved it!", { className: "success", position: "top center" });
 }
 
 function addVideo(key) {
@@ -277,7 +323,7 @@ function addOverlay(key) {
 	width = video_iframe.width();
 	height = video_iframe.height() / 3;
 
-	var div = "<div class='video_overlay " + key + "' video-key='" + key + "' style='width: " + width + "px; height: " + height + "px; margin-top: -" + height + "px'></div>";
+	var div = "<div class='video_overlay " + key + "' video-key='" + key + "' style='width: " + width + "px; height: " + height + "px; margin-top: -" + height + "px'>" + key + "</div>";
 
 	video_div.append(div);
 }
@@ -335,8 +381,8 @@ function onPlayerStateChange() {
 
 <body>
 
-	<div id="input">
-		<input type="text" placeholder="Add a video. Example: youtube.com/watch?v=alX1mZo5wrU" size="64">
+	<div id="drop">
+		<input class="drop" type="text" placeholder="Drop your video here (todo). ie: youtube.com/watch?v=alX1mZo5wrU" size="64">
 	</div>
 
 	<div id="stream">
