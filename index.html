@@ -55,7 +55,7 @@ input.drop {
 
 <script>
 
-var players = Array();
+var players = {};
 var now_playing = null;
 var scroll_timer = null;
 var top_px_play_min = 0;
@@ -189,6 +189,22 @@ function highlightVideo(key) {
 	$(".video." + key).addClass("highlighted");
 }
 
+function pauseEveryVideoExceptFor(key) {
+
+	console.log("pausing all videos");
+
+	$.each(players, function(video_key, player) {
+		console.log("video key is " + video_key);
+		if (video_key != key) {
+
+			console.log("Pausing " + video_key);
+			if (typeof(player.pauseVideo) == "function") {
+				player.pauseVideo();
+			}
+		}
+	});
+}
+
 function pausePlayingVideo() {
 	// stop current video
 	if (now_playing != null) {
@@ -235,7 +251,9 @@ function destroyPlayer(key) {
 	if (player != null) {
 		player.destroy();
 	}
-	players[key] = null;
+
+	delete players[key];
+	//players[key] = null;
 }
 
 function handleClickVideo(key) {
@@ -254,7 +272,7 @@ function handleClickVideo(key) {
 function handleSwipeLeft(key) {
 
 	$(".video." + key).slideUp(function() { destroyPlayer(key); onScroll(); });
-	$.notify("Tossed out!", { className: "info", position: "top center" });
+	$.notify("Tossed!", { className: "info", position: "top center" });
 	
 	//setTimeout(onScroll, 1000);
 	//onScroll();
@@ -383,13 +401,12 @@ function onPlayerStateChange(event) {
 		centerVideo(video_id);
 	}
 
-	// pause other videos when it starts
-  	if ((event.data == 1) && (mobile)) {
+  	if (event.data == 1) {
 
-	  	// pause other playing video
-	  	pausePlayingVideo();
+  		// pause all other videos
+  		pauseEveryVideoExceptFor(video_id);
 
-	  	// set now playing
+  		// set now playing
 	  	now_playing = video_id;
   	}
 }
